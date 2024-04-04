@@ -60,7 +60,9 @@ resource "aws_vpc_security_group_egress_rule" "allow_tls_ipv4_out_all" {
 }
 
 
-resource "aws_instance" "endpoint-a" {
+resource "aws_instance" "endpoint" {
+  for_each = toset(var.instance_names)
+
   ami             = "ami-019f9b3318b7155c5"
   instance_type   = "t2.micro"
   # security_groups = ["${aws_security_group.allow_tls.id}"]
@@ -73,10 +75,10 @@ resource "aws_instance" "endpoint-a" {
                 yum install -y httpd                    
                 systemctl start httpd                   
                 systemctl enable httpd                   
-                echo 'SERVICE A' > /var/www/html/index.html 
+                echo '${each.key}' > /var/www/html/index.html 
                 EOF
   tags = {
-    Name = "Endpoint A"
+    Name = each.key
   }
 }
 
